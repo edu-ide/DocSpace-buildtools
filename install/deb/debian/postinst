@@ -4,6 +4,10 @@ set -e
 
 . /usr/share/debconf/confmodule
 
+OLD_VER="${2:-}"
+UPGRADE_NO_RECONFIG=0
+[ -n "$OLD_VER" ] && [ -z "${DEBCONF_RECONFIGURE:-}" ] && UPGRADE_NO_RECONFIG=1
+
 case "$1" in
 	configure)
 		args=()
@@ -31,6 +35,22 @@ case "$1" in
 		DB_PWD="$RET"
 		db_get {{product}}/db-port || true
 		DB_PORT="$RET"
+
+		[ -n "${DOCSPACE_DB_HOST:-}" ]     && DB_HOST="$DOCSPACE_DB_HOST"
+		[ -n "${DOCSPACE_DB_NAME:-}" ]     && DB_NAME="$DOCSPACE_DB_NAME"
+		[ -n "${DOCSPACE_DB_USER:-}" ]     && DB_USER="$DOCSPACE_DB_USER"
+		[ -n "${DOCSPACE_DB_PASSWORD:-}" ] && DB_PWD="$DOCSPACE_DB_PASSWORD"
+		[ -n "${DOCSPACE_DB_PORT:-}" ]     && DB_PORT="$DOCSPACE_DB_PORT"
+
+		if [ "$UPGRADE_NO_RECONFIG" = "1" ]; then
+			DB_ENV_SET=0
+			for _v in DOCSPACE_DB_HOST DOCSPACE_DB_NAME DOCSPACE_DB_USER DOCSPACE_DB_PASSWORD DOCSPACE_DB_PORT; do
+				[ -n "${!_v:-}" ] && DB_ENV_SET=1
+			done
+			if [ "$DB_ENV_SET" -eq 0 ]; then
+				DB_HOST=""; DB_NAME=""; DB_USER=""; DB_PWD=""; DB_PORT=""
+			fi
+		fi
 
 		if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_USER" ] && [ -n "$DB_PORT" ]; then
 			args+=(-mysqlh "$DB_HOST" -mysqld "$DB_NAME" -mysqlu "$DB_USER" -mysqlport "$DB_PORT")
