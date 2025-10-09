@@ -1,0 +1,17 @@
+FROM onlyoffice/documentserver:latest
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    sed \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy mobile edit enabler script
+COPY enable-mobile-edit.sh /usr/local/bin/enable-mobile-edit.sh
+RUN chmod +x /usr/local/bin/enable-mobile-edit.sh
+
+# Create custom entrypoint
+COPY documentserver-entrypoint.sh /usr/local/bin/documentserver-entrypoint.sh
+RUN chmod +x /usr/local/bin/documentserver-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/documentserver-entrypoint.sh"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]

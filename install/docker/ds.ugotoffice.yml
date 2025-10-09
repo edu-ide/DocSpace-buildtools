@@ -1,0 +1,37 @@
+services:
+  onlyoffice-document-server:
+    # Build custom DocumentServer with mobile editing enabled
+    build:
+      context: .
+      dockerfile: Dockerfile.documentserver
+    image: ugotoffice/documentserver:latest
+    container_name: ${DOCUMENT_CONTAINER_NAME}
+    # Strings below enable the JSON Web Token validation.
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${DOCUMENT_SERVER_JWT_SECRET}
+      - JWT_HEADER=${DOCUMENT_SERVER_JWT_HEADER}
+      - JWT_IN_BODY=true
+    volumes:
+      - ${VOLUMES_DIR:+${VOLUMES_DIR}/}app_data:/var/www/onlyoffice/Data
+      - ${VOLUMES_DIR:+${VOLUMES_DIR}/}log_data:/var/log/onlyoffice
+    expose:
+      - '80'
+    stdin_open: true
+    restart: always
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/info/info.json"]
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+
+networks:
+  default:
+    name: ${NETWORK_NAME}
+    external: true
+
+volumes:
+  log_data:
+  app_data:
