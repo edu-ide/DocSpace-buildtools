@@ -1,0 +1,26 @@
+services:
+  docspace-mcp-server:
+    image: onlyoffice/docspace-mcp:latest
+    container_name: ${MCP_CONTAINER_NAME:-docspace-mcp}
+    environment:
+      - DOCSPACE_BASE_URL=${DOCSPACE_BASE_URL:-http://nginx}
+      - DOCSPACE_API_KEY=${DOCSPACE_API_KEY}
+      - DOCSPACE_TOOLSETS=${DOCSPACE_TOOLSETS:-files,folders,rooms,people}
+      - DOCSPACE_DYNAMIC=${DOCSPACE_DYNAMIC:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "${MCP_PORT:-3000}:3000"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+    depends_on:
+      - nginx
+
+networks:
+  default:
+    name: ${NETWORK_NAME}
+    external: true
