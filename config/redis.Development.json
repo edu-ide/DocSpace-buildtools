@@ -1,0 +1,14 @@
+{
+  "Redis": {
+    "Hosts": [
+      {
+        "Host": "redis-master.docspace.svc.cluster.local",
+        "Port": 6379
+      }
+    ],
+    "Password": "docspace-redis-2024",
+    "ConnectTimeout": 5000,
+    "SyncTimeout": 5000,
+    "DatabaseId": 0
+  }
+}

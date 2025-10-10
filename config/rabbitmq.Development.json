@@ -1,0 +1,9 @@
+{
+  "RabbitMQ": {
+    "HostName": "rabbitmq.docspace.svc.cluster.local",
+    "Port": 5672,
+    "UserName": "user",
+    "Password": "docspace-rabbit-2024",
+    "VirtualHost": "/"
+  }
+}
